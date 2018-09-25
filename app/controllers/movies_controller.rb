@@ -12,6 +12,12 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.order(params[:sort])
+    @all_ratings = Movie.rate.uniq
+    @rate_checking = params[:ratings]
+    if @rate_checking.class != NilClass
+      @all_keys = @rate_checking.keys
+      @movies = Movie.all.select { |m| @all_keys.include?m.rating}
+    end
   end
 
   def new
