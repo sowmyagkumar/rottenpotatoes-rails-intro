@@ -6,14 +6,14 @@
   Include:
   - @all_ratings.each do |rating|
     = rating
-    = check_box_tag "ratings[#{rating}]", 1, @all_keys.include?("#{rating}")
+    = check_box_tag "ratings[#{rating}]", 1, @rate_checking.include?("#{rating}")?true:false, :id => "ratings_#{rating}"
   = submit_tag 'Refresh', :id => 'ratings_submit'
 %table#movies
   %thead
     %tr
-      %th{:id => 'title_header', :class => helper_class('title') }=sortable "title"
+      %th{:class => @x }=sortable "title"
       %th Rating
-      %th{:id => 'release_date_header'}=sortable "release_date"
+      %th{:class => @y}=sortable "release_date"
       %th More Info
   %tbody
     - @movies.each do |movie|

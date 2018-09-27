@@ -11,14 +11,46 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.order(params[:sort])
     @all_ratings = Movie.rate.uniq
-    @rate_checking = params[:ratings]
-    if @rate_checking.class != NilClass
-      @all_keys = @rate_checking.keys
-      @movies = Movie.all.select { |m| @all_keys.include?m.rating}
+    sorting = false
+    if session[:sort] == nil or (params[:sort]!=session[:sort] and params[:sort]!=nil)
+      if params[:sort] == nil and session[:sort] == nil
+        sorting = false
+      else
+        sorting = true
+        session[:sort] = params[:sort]
+      end
+    end  
+    if session[:ratings] == nil or params[:commit]!= nil
+      if params[:ratings] != nil
+        session[:ratings] = params[:ratings]
+      else
+        session[:ratings] = []
+      end
     end
+    @rate_checking = session[:ratings]
+    if session[:ratings].blank?
+      if sorting == true
+        @movies = Movie.order(session[:sort])
+      else
+        @movies = Movie.all
+      end
+    else 
+      if sorting == true
+        @movies = Movie.all.select {|i| session[:ratings].include?(i.rating)?true:false}
+      else
+        @movies = Movie.order("#{session[:sort]}").select {|i| session[:ratings].include?(i.rating)?true:false}
+      end
+    end
+  if session[:sort] == "title"
+    @x = "hilite"
+    @y = ""
+    elsif session[:sort] == "release_date"
+      @x = ""
+      @y ="hilite"
   end
+  end
+
 
   def new
     # default: render 'new' template
@@ -27,6 +59,7 @@ class MoviesController < ApplicationController
   def create
     @movie = Movie.create!(movie_params)
     flash.keep[:notice] = "#{@movie.title} was successfully created."
+    session.clear
     redirect_to movies_path
   end
 
